@@ -7,7 +7,7 @@ export default function Exam() {
   const [answers, setAnswers] = useState({});
   const [studentName, setStudentName] = useState("");
   const [studentEmail, setStudentEmail] = useState("");
-  const [timeLeft, setTimeLeft] = useState(150 * 60); // 2:30 hours in minutes → seconds
+  const [timeLeft, setTimeLeft] = useState(120 * 60); // 2:30 hours in minutes → seconds
   const [currentPart, setCurrentPart] = useState(0);
 
   // Countdown Timer
@@ -37,19 +37,30 @@ export default function Exam() {
       return;
     }
 
-    try {
-      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/answers/submit`, {
+   try {
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/answers/submit`, {
+    studentName,
+    studentEmail,
+    examTitle: examData.examTitle,
+    answers,
+  });
 
-        studentName,
-        studentEmail,
-        examTitle: examData.examTitle,
-        answers,
-      });
-      alert(res.data.message);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to submit answers");
-    }
+  // ✅ Success: show message and redirect
+  alert(res.data.message || "Answers submitted successfully!");
+
+  // Redirect user to your website
+  window.location.href = "https://studentspher.onrender.com";
+} catch (err) {
+  console.error(err);
+
+  // If backend sent a specific error message
+  if (err.response && err.response.data && err.response.data.message) {
+    alert(err.response.data.message);
+  } else {
+    alert("Failed to submit answers");
+  }
+}
+
   };
 
   const goNextPart = () => {
